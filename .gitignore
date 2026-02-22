@@ -1,0 +1,53 @@
+# ── Python ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual Environment ──────────────────────────────
+venv/
+env/
+.venv/
+ENV/
+
+# ── Environment Variables ────────────────────────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── FastAPI / Uvicorn ────────────────────────────────
+*.log
+
+# ── Node / React ─────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/build/
+frontend/.env
+frontend/.env.local
+
+# ── OS Files ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Test / Coverage ───────────────────────────────────
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Uploads (user PDFs — never commit patient data) ──
+backend/uploads/
+backend/sample_bills/*.pdf
