@@ -1,11 +1,14 @@
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+const BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
+
 
 const api = axios.create({
         baseURL: BASE_URL,
         timeout: 180000, // 3 minutes for large PDFs + GPT
 });
+
 
 api.interceptors.response.use(
         (res) => res,
@@ -19,11 +22,13 @@ api.interceptors.response.use(
         }
 );
 
+
 export const auditBill = async (files, onUploadProgress) => {
         const formData = new FormData();
         formData.append("bill_pdf", files.bill);
         if (files.summary) formData.append("summary_pdf", files.summary);
         if (files.eob) formData.append("eob_pdf", files.eob);
+
 
         const { data } = await api.post("/api/audit/analyze", formData, {
                 headers: { "Content-Type": "multipart/form-data" },
@@ -31,6 +36,7 @@ export const auditBill = async (files, onUploadProgress) => {
         });
         return data;
 };
+
 
 export const downloadAppealPDF = async (appealData) => {
         const response = await api.post("/api/audit/download-letter", appealData, {
@@ -48,6 +54,8 @@ export const downloadAppealPDF = async (appealData) => {
         window.URL.revokeObjectURL(url);
 };
 
+
 export const healthCheck = () => api.get("/api/audit/health");
+
 
 export default api;
