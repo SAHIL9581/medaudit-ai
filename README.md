@@ -1,56 +1,77 @@
 # MedAudit AI 🏥
 
-**AI-powered medical bill auditor** that detects upcoding, duplicate charges, NCCI unbundling violations, and pricing anomalies — then drafts a ready-to-send dispute letter automatically.
+> AI-powered medical bill auditor that catches overcharges before you pay them.
+
+Medical billing errors affect an estimated **80% of bills**. MedAudit AI parses your bill, extracts every CPT code, benchmarks each charge against CMS Medicare rates, and runs a full AI audit — then drafts a ready-to-send dispute letter automatically.
 
 ---
 
-## What It Does
+## Features
 
-Medical billing errors affect an estimated 80% of bills. MedAudit AI parses your bill, extracts every CPT code, benchmarks each charge against CMS Medicare rates, and runs AI analysis to surface overcharges before you pay them.
+- **PDF Parsing** — 3-engine extraction pipeline (pdfplumber, PyMuPDF, fallback OCR)
+- **CPT Extraction** — 5-strategy pattern matching with per-code confidence scoring
+- **Benchmark Comparison** — Per-procedure pricing vs. the CMS Medicare database
+- **AI Audit** — Detects upcoding, duplicate charges, NCCI unbundling violations, and pricing anomalies
+- **Risk Scoring** — Per-charge risk level with confidence percentages
+- **Dispute Letter** — Auto-generated, citation-backed appeal letter ready to send
+- **Multilingual Chatbot** — Sarvam AI-powered support with regional language options
+- **Fast** — Full audit in under 10 seconds
 
-| Capability | Details |
-|---|---|
-| 📄 PDF Parsing | 3-engine extraction pipeline (pdfplumber, PyMuPDF, fallback OCR) |
-| 🔍 CPT Extraction | 5-strategy pattern matching with confidence scoring |
-| 💰 Benchmark Comparison | Per-procedure pricing vs. CMS Medicare database |
-| 🤖 AI Audit | Upcoding, duplicates, unbundling, and anomaly detection |
-| 📊 Risk Scoring | Per-charge risk level with confidence percentages |
-| 📝 Dispute Letter | Auto-generated, citation-backed appeal letter |
-| ⚡ Speed | Full audit in under 10 seconds |
+---
+
+## How It Works
+
+```
+Upload Bill → Parse PDF → Extract CPT Codes → Benchmark vs. CMS → AI Audit → Dispute Letter
+```
+
+1. **Upload** your medical bill (PDF)
+2. **MedAudit** extracts all CPT procedure codes using a multi-strategy parser
+3. Each code is **benchmarked** against CMS Medicare reimbursement rates
+4. An **AI model** reviews the full bill for upcoding, duplicates, and unbundling violations
+5. You receive a **risk-scored report** and a ready-to-send dispute letter
 
 ---
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | FastAPI · Python 3.11 · pdfplumber · PyMuPDF |
-| AI | OpenAI GPT-4.1-mini · RAG pipeline |
-| Frontend | React 18 · Tailwind CSS · Framer Motion |
-| Data | CMS Medicare Benchmark Database (JSON) |
+**Backend**
+- FastAPI · Python 3.11
+- pdfplumber · PyMuPDF · OCR fallback
+
+**AI**
+- OpenAI GPT-4.1-mini
+- RAG pipeline
+- Sarvam AI (multilingual)
+
+**Frontend**
+- React 18 · Tailwind CSS · Framer Motion · Vite
+
+**Data**
+- CMS Medicare Benchmark Database (JSON)
+- NCCI Edits · LCD Mappings
 
 ---
 
 ## Project Structure
 
 ```
-medical_bill_audit/
+medaudit-ai/
 ├── backend/
-│   ├── app/
-│   │   ├── data/          # CMS benchmark JSON files
-│   │   ├── models/        # Pydantic schemas
-│   │   ├── routes/        # FastAPI route handlers
-│   │   └── services/      # PDF parser, auditor, AI logic
-│   ├── sample_bills/      # Test PDFs (gitignored)
-│   ├── debug.py
-│   ├── main.py
-│   └── requirements.txt
+│   ├── main.py               # FastAPI app & routes
+│   ├── parser/               # PDF + CPT extraction engines
+│   ├── benchmark/            # CMS rate lookup
+│   ├── audit/                # AI audit logic & risk scoring
+│   └── letter/               # Dispute letter generation
 ├── frontend/
 │   ├── src/
-│   │   ├── components/
-│   │   ├── pages/
-│   │   └── services/
-│   └── index.html
+│   │   ├── components/       # UI components
+│   │   └── pages/            # App views
+│   └── vite.config.ts
+├── data/
+│   ├── cms_rates.json        # CMS Medicare benchmark data
+│   ├── ncci_edits.json       # NCCI bundling rules
+│   └── lcd_mappings.json     # Local coverage determinations
 └── README.md
 ```
 
@@ -62,99 +83,42 @@ medical_bill_audit/
 
 - Python 3.11+
 - Node.js 18+
-- An [OpenAI API key](https://platform.openai.com/api-keys)
+- OpenAI API key
+- Sarvam AI API key
 
-### 1. Clone & configure
-
-```bash
-git clone https://github.com/your-username/medical_bill_audit.git
-cd medical_bill_audit
-```
-
-Create `backend/.env`:
-
-```env
-OPENAI_API_KEY=your_openai_api_key_here
-```
-
-### 2. Run the backend
+### Installation
 
 ```bash
+# Clone the repo
+git clone https://github.com/your-org/medaudit-ai
+cd medaudit-ai
+
+# Backend
 cd backend
-
-python -m venv venv
-source venv/bin/activate        # Mac/Linux
-# venv\Scripts\activate         # Windows
-
 pip install -r requirements.txt
-uvicorn app.main:app --reload```
+cp .env.example .env  # Add your API keys
+uvicorn main:app --reload
 
-Backend → `http://localhost:8000`  
-API docs → `http://localhost:8000/docs`
-
-### 3. Run the frontend
-
-```bash
+# Frontend (new terminal)
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend → `http://localhost:5173`
-
----
-
-## How It Works
-
-```
-Upload PDF  →  Parse (3 engines)  →  Extract CPT codes  →  CMS benchmark lookup
-                                                                    ↓
-              Dispute Letter  ←  AI analysis  ←  Risk scoring  ←  Anomaly detection
-```
-
-1. **Parse** — pdfplumber, PyMuPDF, and an OCR fallback ensure extraction even from scanned bills
-2. **Extract** — 5 regex and heuristic strategies identify CPT codes, quantities, and billed amounts
-3. **Benchmark** — each line item is compared against the CMS Medicare fee schedule for your region
-4. **Analyze** — GPT-4.1-mini audits for upcoding patterns, duplicate billing, NCCI bundling violations, and statistical outliers
-5. **Report** — results are returned as structured JSON with a ready-to-send dispute letter
-
----
-
-## API Reference
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/audit` | Upload a bill PDF and receive full audit results |
-| `GET` | `/benchmarks/{cpt_code}` | Look up CMS pricing for a specific CPT code |
-| `GET` | `/health` | Health check |
-
-Full interactive docs available at `/docs` when the backend is running.
+Then open [http://localhost:5173](http://localhost:5173).
 
 ---
 
 ## Environment Variables
 
-| Variable | Required | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | ✅ | Your OpenAI API key |
-
----
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch (`git checkout -b feature/my-change`)
-3. Commit your changes (`git commit -m 'Add my change'`)
-4. Push and open a pull request
+| Variable | Description |
+|---|---|
+| `OPENAI_API_KEY` | OpenAI API key for GPT-4.1-mini |
+| `SARVAM_API_KEY` | Sarvam AI key for multilingual chat |
+| `CMS_DATA_PATH` | Path to CMS benchmark JSON |
 
 ---
 
 ## Disclaimer
 
-MedAudit AI is an assistive tool and does not constitute legal or medical advice. Always verify findings with a qualified medical billing advocate before submitting a formal dispute.
-
----
-
-## License
-
-MIT © 2025
+MedAudit AI is an informational tool and does not constitute legal or medical advice. Always consult a qualified billing advocate or attorney before submitting a formal dispute.

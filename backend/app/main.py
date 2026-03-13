@@ -51,11 +51,13 @@ if os.path.isdir("sample_bills"):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS,
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=settings.cors_origin_regex,   # ← add this line
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 
 

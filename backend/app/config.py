@@ -1,6 +1,6 @@
 import os
+from functools import lru_cache
 from dotenv import load_dotenv
-
 
 load_dotenv()
 
@@ -18,9 +18,15 @@ SARVAM_API_KEY: str = os.getenv("SARVAM_API_KEY", "")
 # ── Server ────────────────────────────────────────────────────────────────
 CORS_ORIGINS: list = os.getenv(
     "CORS_ORIGINS",
-    "http://localhost:5173,http://localhost:3000,https://medaudit-ai.vercel.app,https://*.vercel.app"
+    "http://localhost:5173,http://localhost:3000,https://medaudit-ai.vercel.app"
 ).split(",")
-LOG_LEVEL: str  = os.getenv("LOG_LEVEL", "INFO")
+
+CORS_ORIGIN_REGEX: str = os.getenv(
+    "CORS_ORIGIN_REGEX",
+    r"https://medaudit-.*\.vercel\.app"
+)
+
+LOG_LEVEL: str   = os.getenv("LOG_LEVEL", "INFO")
 DEBUG_MODE: bool = os.getenv("DEBUG_MODE", "false").lower() == "true"
 
 
@@ -38,3 +44,18 @@ MAX_PAGES_PER_PDF: int       = int(os.getenv("MAX_PAGES_PER_PDF", "50"))
 # ── Directory Setup ───────────────────────────────────────────────────────
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(CHROMA_PERSIST_DIR, exist_ok=True)
+
+
+# ── Settings object (for main.py compatibility) ───────────────────────────
+class Settings:
+    openai_api_key    = OPENAI_API_KEY
+    openai_model      = OPENAI_MODEL
+    cors_origins      = CORS_ORIGINS
+    cors_origin_regex = CORS_ORIGIN_REGEX
+    debug_mode        = DEBUG_MODE
+    log_level         = LOG_LEVEL
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
