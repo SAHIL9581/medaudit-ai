@@ -1,17 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2, Brain, Search, FileSearch, BarChart2, FileText, ShieldCheck } from "lucide-react";
+import { getT } from "../services/translations";
 
-const STAGES = [
-        { icon: FileSearch, label: "Parsing PDF documents", ms: 2800 },
-        { icon: Search, label: "Extracting CPT & ICD codes", ms: 2400 },
-        { icon: Brain, label: "AI fraud & error detection", ms: 5200 },
-        { icon: BarChart2, label: "Pricing benchmark comparison", ms: 2000 },
-        { icon: ShieldCheck, label: "Risk scoring & confidence", ms: 1600 },
-        { icon: FileText, label: "Generating appeal letter", ms: 3200 },
-];
+const STAGE_ICONS = [FileSearch, Search, Brain, BarChart2, ShieldCheck, FileText];
 
-const AnalysisProgress = ({ isActive }) => {
+const AnalysisProgress = ({ isActive, language = "en" }) => {
+        const t = getT(language).progress;
+        const STAGES = t.stages.map((label, i) => ({ icon: STAGE_ICONS[i], label, ms: [2800, 2400, 5200, 2000, 1600, 3200][i] }));
+
         const [current, setCurrent] = useState(0);
         const [done, setDone] = useState(new Set());
 
@@ -60,14 +57,14 @@ const AnalysisProgress = ({ isActive }) => {
                                                         <Brain className="w-8 h-8 text-blue-400" />
                                                 </div>
                                         </div>
-                                        <h2 className="text-xl font-bold text-white">Analyzing Your Bill</h2>
-                                        <p className="text-sm text-slate-500 mt-1">AI audit in progress — this takes ~15 seconds</p>
+                                        <h2 className="text-xl font-bold text-white">{t.title}</h2>
+                                        <p className="text-sm text-slate-500 mt-1">{t.subtitle}</p>
                                 </div>
 
                                 {/* Progress bar */}
                                 <div className="mb-6">
                                         <div className="flex justify-between text-xs text-slate-500 mb-2">
-                                                <span>Progress</span>
+                                                <span>{t.label}</span>
                                                 <span className="font-mono text-blue-400">{pct}%</span>
                                         </div>
                                         <div className="h-1.5 bg-[#0a1628] rounded-full overflow-hidden">

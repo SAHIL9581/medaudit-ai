@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from app.config import CORS_ORIGINS, LOG_LEVEL, DEBUG_MODE
 from app.routes.audit import router as audit_router
+from app.routes.chat import router as chat_router
 from app.services.rag import initialize_rag
 
 
@@ -59,6 +60,7 @@ app.add_middleware(
 
 
 app.include_router(audit_router)
+app.include_router(chat_router)
 
 
 

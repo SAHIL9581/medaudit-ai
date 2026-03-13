@@ -10,7 +10,10 @@ import AnalysisProgress from "../components/AnalysisProgress";
 import ResultsPanel from "../components/ResultsPanel";
 import PricingSummary from "../components/PricingSummary";
 import AppealDownload from "../components/AppealDownload";
+import Chatbot from "../components/Chatbot";
+import LanguageSelector from "../components/LanguageSelector";
 import { auditBill } from "../services/api";
+import { getT } from "../services/translations";
 
 
 /* ── Stat card ──────────────────────────────────────────────── */
@@ -61,10 +64,10 @@ const Ring = ({ score, label, color }) => {
 
 
 /* ── Tabs ───────────────────────────────────────────────────── */
-const TABS = [
-        { id: "issues", label: "Issues", Icon: AlertCircle },
-        { id: "pricing", label: "Pricing", Icon: BarChart2 },
-        { id: "appeal", label: "Appeal Letter", Icon: FileText },
+const TAB_IDS = [
+        { id: "issues", Icon: AlertCircle },
+        { id: "pricing", Icon: BarChart2 },
+        { id: "appeal", Icon: FileText },
 ];
 
 
@@ -74,6 +77,10 @@ export default function Dashboard() {
         const [loading, setLoading] = useState(false);
         const [error, setError] = useState(null);
         const [tab, setTab] = useState("issues");
+        const [language, setLanguage] = useState("en");
+
+        const t = getT(language);
+        const TABS = TAB_IDS.map(({ id, Icon }) => ({ id, Icon, label: t.tabs[id] }));
 
         const handleSubmit = async (files) => {
                 setLoading(true); setError(null); setResult(null);
@@ -101,14 +108,17 @@ export default function Dashboard() {
                                                 </div>
                                                 <div className="flex items-baseline gap-2">
                                                         <span className="font-extrabold text-white text-lg tracking-tight">MedAudit</span>
-                                                        <span className="text-xs text-slate-600 font-medium hidden sm:block">AI Medical Bill Audit</span>
+                                                        <span className="text-xs text-slate-600 font-medium hidden sm:block">{t.nav.tagline}</span>
                                                 </div>
                                         </div>
-                                        {result && (
-                                                <button onClick={reset} className="btn-ghost flex items-center gap-1.5 text-sm">
-                                                        <RefreshCw className="w-3.5 h-3.5" /> New Audit
-                                                </button>
-                                        )}
+                                        <div className="flex items-center gap-3">
+                                                <LanguageSelector language={language} onChange={setLanguage} />
+                                                {result && (
+                                                        <button onClick={reset} className="btn-ghost flex items-center gap-1.5 text-sm">
+                                                                <RefreshCw className="w-3.5 h-3.5" /> {t.nav.newAudit}
+                                                        </button>
+                                                )}
+                                        </div>
                                 </div>
                         </nav>
 
@@ -128,19 +138,18 @@ export default function Dashboard() {
                               bg-blue-500/8 rounded-full px-4 py-1.5">
                                                                 <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
                                                                 <span className="text-xs font-semibold text-blue-400 tracking-wide">
-                                                                        GPT-4.1-mini · Semantic RAG · CMS Benchmarks
+                                                                        {t.hero.badge}
                                                                 </span>
                                                         </div>
                                                         <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-tight">
-                                                                Find Hidden Errors<br />
+                                                                {t.hero.heading1}<br />
                                                                 <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-cyan-400
                                  bg-clip-text text-transparent">
-                                                                        in Your Medical Bills
+                                                                        {t.hero.heading2}
                                                                 </span>
                                                         </h1>
                                                         <p className="text-slate-500 max-w-md mx-auto text-base leading-relaxed">
-                                                                Upload your hospital bill. AI detects upcoding, duplicate charges, and
-                                                                pricing anomalies — then writes your dispute letter automatically.
+                                                                {t.hero.subtext}
                                                         </p>
                                                 </motion.div>
                                         )}
@@ -150,7 +159,7 @@ export default function Dashboard() {
                                 <AnimatePresence mode="wait">
                                         {!result && !loading && (
                                                 <motion.div key="upload" exit={{ opacity: 0, y: -16 }}>
-                                                        <UploadSection onSubmit={handleSubmit} isLoading={loading} />
+                                                        <UploadSection onSubmit={handleSubmit} isLoading={loading} language={language} />
                                                 </motion.div>
                                         )}
                                 </AnimatePresence>
@@ -159,7 +168,7 @@ export default function Dashboard() {
                                 <AnimatePresence>
                                         {loading && (
                                                 <motion.div key="progress" exit={{ opacity: 0 }}>
-                                                        <AnalysisProgress isActive={loading} />
+                                                        <AnalysisProgress isActive={loading} language={language} />
                                                 </motion.div>
                                         )}
                                 </AnimatePresence>
@@ -179,10 +188,10 @@ export default function Dashboard() {
                                                                         <AlertCircle className="w-5 h-5 text-red-400" />
                                                                 </div>
                                                                 <div>
-                                                                        <h3 className="font-bold text-white">Analysis Failed</h3>
+                                                                        <h3 className="font-bold text-white">{t.error.title}</h3>
                                                                         <p className="text-sm text-slate-400 mt-1 leading-relaxed">{error}</p>
                                                                         <button onClick={reset} className="btn-primary mt-4 text-sm px-4 py-2">
-                                                                                Try Again
+                                                                                {t.error.retry}
                                                                         </button>
                                                                 </div>
                                                         </div>
@@ -201,22 +210,22 @@ export default function Dashboard() {
                                                 >
                                                         {/* ── Stat grid ── */}
                                                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                                                                <Stat icon={DollarSign} label="Total Billed"
+                                                                <Stat icon={DollarSign} label={t.stats.charged}
                                                                         value={`$${result.total_billed.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                                                                         accent={{ wrap: "bg-slate-700/40 border-slate-600/40", icon: "text-slate-300", val: "text-white" }} />
-                                                                <Stat icon={CheckCircle} label="Fair Estimate"
+                                                                <Stat icon={CheckCircle} label={t.stats.fair}
                                                                         value={`$${result.estimated_fair_total.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
                                                                         accent={{ wrap: "bg-emerald-500/15 border-emerald-500/25", icon: "text-emerald-400", val: "text-emerald-400" }} />
-                                                                <Stat icon={TrendingDown} label="Potential Savings"
+                                                                <Stat icon={TrendingDown} label={t.stats.savings}
                                                                         value={`$${result.estimated_savings.toLocaleString("en-US", { minimumFractionDigits: 2 })}`}
-                                                                        sub={result.estimated_savings > 0 ? "Estimated overcharge found" : "No overcharge detected"}
+                                                                        sub={result.estimated_savings > 0 ? t.stats.overcharged : t.stats.no_overcharge}
                                                                         accent={{
                                                                                 wrap: "bg-red-500/15 border-red-500/25", icon: "text-red-400",
                                                                                 val: result.estimated_savings > 0 ? "text-red-400" : "text-emerald-400"
                                                                         }} />
-                                                                <Stat icon={AlertCircle} label="Issues Found"
+                                                                <Stat icon={AlertCircle} label={t.stats.issues}
                                                                         value={result.issue_count}
-                                                                        sub={`${result.pricing_results.filter(p => p.is_flagged).length} pricing flags`}
+                                                                        sub={`${result.pricing_results.filter(p => p.is_flagged).length} ${t.stats.flagged_prices}`}
                                                                         accent={{
                                                                                 wrap: result.issue_count > 0 ? "bg-amber-500/15 border-amber-500/25" : "bg-emerald-500/15 border-emerald-500/25",
                                                                                 icon: result.issue_count > 0 ? "text-amber-400" : "text-emerald-400",
@@ -231,11 +240,11 @@ export default function Dashboard() {
                                                                 transition={{ delay: 0.2 }}
                                                                 className="card p-6"
                                                         >
-                                                                <p className="section-label mb-5">Analysis Scores</p>
+                                                                <p className="section-label mb-5">{t.scores.title}</p>
                                                                 <div className="flex justify-around flex-wrap gap-6">
-                                                                        <Ring score={result.overall_confidence} label="Overall Confidence" color="#3b82f6" />
-                                                                        <Ring score={result.risk_score} label="Risk Score" color="#ef4444" />
-                                                                        <Ring score={result.appeal_success_probability} label="Appeal Success" color="#22c55e" />
+                                                                        <Ring score={result.overall_confidence} label={t.scores.confidence} color="#3b82f6" />
+                                                                        <Ring score={result.risk_score} label={t.scores.risk} color="#ef4444" />
+                                                                        <Ring score={result.appeal_success_probability} label={t.scores.appeal} color="#22c55e" />
                                                                 </div>
                                                         </motion.div>
 
@@ -253,7 +262,7 @@ export default function Dashboard() {
                                                                                                 <User className="w-3.5 h-3.5 text-blue-400" />
                                                                                         </div>
                                                                                         <div>
-                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Patient</p>
+                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t.info.patient}</p>
                                                                                                 <p className="text-sm font-semibold text-white">{bill.patient_name}</p>
                                                                                         </div>
                                                                                 </div>
@@ -264,7 +273,7 @@ export default function Dashboard() {
                                                                                                 <Building2 className="w-3.5 h-3.5 text-purple-400" />
                                                                                         </div>
                                                                                         <div>
-                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Provider</p>
+                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t.info.provider}</p>
                                                                                                 <p className="text-sm font-semibold text-white">{bill.provider_name}</p>
                                                                                         </div>
                                                                                 </div>
@@ -275,9 +284,9 @@ export default function Dashboard() {
                                                                                                 <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
                                                                                         </div>
                                                                                         <div>
-                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Setting</p>
+                                                                                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t.info.visitType}</p>
                                                                                                 <p className="text-sm font-semibold text-white">
-                                                                                                        {bill.is_inpatient ? "Inpatient" : "Outpatient"}
+                                                                                                        {bill.is_inpatient ? t.info.inpatient : t.info.outpatient}
                                                                                                 </p>
                                                                                         </div>
                                                                                 </div>
@@ -319,17 +328,17 @@ export default function Dashboard() {
                                                                         <AnimatePresence mode="wait">
                                                                                 {tab === "issues" && (
                                                                                         <motion.div key="i" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                                                                <ResultsPanel auditResult={result} />
+                                                                                                <ResultsPanel auditResult={result} language={language} />
                                                                                         </motion.div>
                                                                                 )}
                                                                                 {tab === "pricing" && (
                                                                                         <motion.div key="p" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                                                                <PricingSummary pricingResults={result.pricing_results} />
+                                                                                                <PricingSummary pricingResults={result.pricing_results} language={language} />
                                                                                         </motion.div>
                                                                                 )}
                                                                                 {tab === "appeal" && (
                                                                                         <motion.div key="a" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                                                                                                <AppealDownload appealLetter={result.appeal_letter} />
+                                                                                                <AppealDownload appealLetter={result.appeal_letter} language={language} />
                                                                                         </motion.div>
                                                                                 )}
                                                                         </AnimatePresence>
@@ -340,6 +349,9 @@ export default function Dashboard() {
                                         )}
                                 </AnimatePresence>
                         </main>
+
+                        {/* ── AI Chatbot (only shown after audit results are ready) ── */}
+                        {result && <Chatbot auditResult={result} language={language} />}
                 </div>
         );
 }

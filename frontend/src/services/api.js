@@ -57,5 +57,14 @@ export const downloadAppealPDF = async (appealData) => {
 
 export const healthCheck = () => api.get("/api/audit/health");
 
+export const sendChatMessage = async (question, dashboardData, language = "en") => {
+    const { data } = await api.post("/api/chat/ask", {
+        question,
+        dashboard_data: dashboardData,
+        language,
+    });
+    return data.answer;
+};
+
 
 export default api;

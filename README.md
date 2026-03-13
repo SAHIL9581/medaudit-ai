@@ -87,8 +87,7 @@ source venv/bin/activate        # Mac/Linux
 # venv\Scripts\activate         # Windows
 
 pip install -r requirements.txt
-uvicorn main:app --reload
-```
+uvicorn app.main:app --reload```
 
 Backend → `http://localhost:8000`  
 API docs → `http://localhost:8000/docs`

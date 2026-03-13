@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Download, Copy, CheckCheck, FileText, Edit3, Eye } from "lucide-react";
 import { downloadAppealPDF } from "../services/api";
+import { getT } from "../services/translations";
 
-const AppealDownload = ({ appealLetter }) => {
+const AppealDownload = ({ appealLetter, language = "en" }) => {
+        const t = getT(language).appeal;
         const [copied, setCopied] = useState(false);
         const [downloading, setDownloading] = useState(false);
         const [editMode, setEditMode] = useState(false);
@@ -36,12 +38,12 @@ const AppealDownload = ({ appealLetter }) => {
                                                         <FileText className="w-5 h-5 text-blue-400" />
                                                 </div>
                                                 <div>
-                                                        <h3 className="text-sm font-bold text-white">Appeal Letter Ready</h3>
+                                                        <h3 className="text-sm font-bold text-white">{t.readyTitle}</h3>
                                                         <p className="text-xs text-slate-500 mt-0.5">
-                                                                Estimated overcharge: <span className="text-red-400 font-semibold">
+                                                                {t.overchargedPrefix} <span className="text-red-400 font-semibold">
                                                                         ${appealLetter.total_estimated_overcharge.toFixed(2)}</span>
                                                                 {appealLetter.cpt_references.length > 0 &&
-                                                                        <> · CPT: <span className="text-slate-400 font-mono text-[11px]">
+                                                                        <> · {t.cptPrefix} <span className="text-slate-400 font-mono text-[11px]">
                                                                                 {appealLetter.cpt_references.join(", ")}</span></>}
                                                         </p>
                                                 </div>
@@ -53,15 +55,15 @@ const AppealDownload = ({ appealLetter }) => {
                                                         className="btn-ghost flex items-center gap-1.5 text-xs"
                                                 >
                                                         {editMode ? <Eye className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
-                                                        {editMode ? "Preview" : "Edit"}
+                                                        {editMode ? t.preview : t.edit}
                                                 </button>
                                                 <button
                                                         onClick={handleCopy}
                                                         className="btn-ghost flex items-center gap-1.5 text-xs"
                                                 >
                                                         {copied
-                                                                ? <><CheckCheck className="w-3.5 h-3.5 text-emerald-400" /> Copied</>
-                                                                : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+                                                                ? <><CheckCheck className="w-3.5 h-3.5 text-emerald-400" /> {t.copied}</>
+                                                                : <><Copy className="w-3.5 h-3.5" /> {t.copy}</>}
                                                 </button>
                                                 <button
                                                         onClick={handleDownload}
@@ -69,7 +71,7 @@ const AppealDownload = ({ appealLetter }) => {
                                                         className="btn-primary flex items-center gap-1.5 text-sm px-4 py-2"
                                                 >
                                                         <Download className="w-4 h-4" />
-                                                        {downloading ? "Generating…" : "Download PDF"}
+                                                        {downloading ? t.downloading : t.download}
                                                 </button>
                                         </div>
                                 </div>
@@ -78,7 +80,7 @@ const AppealDownload = ({ appealLetter }) => {
                         {/* Issues cited */}
                         {appealLetter.issues_summary.length > 0 && (
                                 <div className="card p-5">
-                                        <p className="section-label">Issues cited in this letter</p>
+                                        <p className="section-label">{t.issuesListTitle}</p>
                                         <ul className="space-y-2">
                                                 {appealLetter.issues_summary.map((issue, i) => (
                                                         <li key={i} className="flex items-start gap-2.5 text-xs text-slate-400">
@@ -92,7 +94,7 @@ const AppealDownload = ({ appealLetter }) => {
 
                         {/* Letter body */}
                         <div className="card p-5">
-                                <p className="section-label">Letter Content</p>
+                                <p className="section-label">{t.letterTitle}</p>
                                 {editMode ? (
                                         <textarea
                                                 value={text}

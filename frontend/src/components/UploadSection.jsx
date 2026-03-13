@@ -2,8 +2,9 @@ import React, { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { FileText, Upload, X, CheckCircle, Sparkles } from "lucide-react";
+import { getT } from "../services/translations";
 
-const DropZone = ({ label, hint, badge, file, onDrop, onRemove }) => {
+const DropZone = ({ label, hint, badge, isRequired, dropText, releaseText, file, onDrop, onRemove }) => {
         const { getRootProps, getInputProps, isDragActive } = useDropzone({
                 onDrop: (f) => f[0] && onDrop(f[0]),
                 accept: { "application/pdf": [".pdf"] },
@@ -16,7 +17,7 @@ const DropZone = ({ label, hint, badge, file, onDrop, onRemove }) => {
                         {/* Label row */}
                         <div className="flex items-center gap-2">
                                 <span className="text-sm font-semibold text-slate-200">{label}</span>
-                                <span className={badge === "required" ? "badge-required" : "badge-optional"}>
+                                <span className={isRequired ? "badge-required" : "badge-optional"}>
                                         {badge}
                                 </span>
                         </div>
@@ -67,7 +68,7 @@ const DropZone = ({ label, hint, badge, file, onDrop, onRemove }) => {
                                                 <div>
                                                         <p className={`text-sm font-medium transition-colors
                 ${isDragActive ? "text-blue-300" : "text-slate-400"}`}>
-                                                                {isDragActive ? "Release to upload" : "Drop PDF here or click to browse"}
+                                                                {isDragActive ? releaseText : dropText}
                                                         </p>
                                                         <p className="text-xs text-slate-600 mt-0.5">{hint}</p>
                                                 </div>
@@ -78,7 +79,8 @@ const DropZone = ({ label, hint, badge, file, onDrop, onRemove }) => {
         );
 };
 
-const UploadSection = ({ onSubmit, isLoading }) => {
+const UploadSection = ({ onSubmit, isLoading, language = "en" }) => {
+        const t = getT(language).upload;
         const [files, setFiles] = useState({ bill: null, summary: null, eob: null });
 
         const set = (k) => (v) => setFiles((p) => ({ ...p, [k]: v }));
@@ -100,32 +102,41 @@ const UploadSection = ({ onSubmit, isLoading }) => {
                                                 <FileText className="w-5 h-5 text-blue-400" />
                                         </div>
                                         <div>
-                                                <h2 className="text-base font-bold text-white">Upload Medical Documents</h2>
-                                                <p className="text-xs text-slate-500 mt-0.5">PDF files only · Max 20 MB each</p>
+                                                <h2 className="text-base font-bold text-white">{t.title}</h2>
+                                                <p className="text-xs text-slate-500 mt-0.5">{t.subtitle}</p>
                                         </div>
                                 </div>
 
                                 {/* Drop zones */}
                                 <DropZone
-                                        label="Hospital Bill"
-                                        hint="Main billing statement from your provider"
-                                        badge="required"
+                                        label={t.billLabel}
+                                        hint={t.billHint}
+                                        badge={t.required}
+                                        isRequired={true}
+                                        dropText={t.dropHere}
+                                        releaseText={t.release}
                                         file={files.bill}
                                         onDrop={set("bill")}
                                         onRemove={clear("bill")}
                                 />
                                 <DropZone
-                                        label="After Visit Summary"
-                                        hint="Clinical summary — strengthens the audit"
-                                        badge="optional"
+                                        label={t.summaryLabel}
+                                        hint={t.summaryHint}
+                                        badge={t.optional}
+                                        isRequired={false}
+                                        dropText={t.dropHere}
+                                        releaseText={t.release}
                                         file={files.summary}
                                         onDrop={set("summary")}
                                         onRemove={clear("summary")}
                                 />
                                 <DropZone
-                                        label="Insurance EOB"
-                                        hint="Explanation of Benefits from your insurer"
-                                        badge="optional"
+                                        label={t.eobLabel}
+                                        hint={t.eobHint}
+                                        badge={t.optional}
+                                        isRequired={false}
+                                        dropText={t.dropHere}
+                                        releaseText={t.release}
                                         file={files.eob}
                                         onDrop={set("eob")}
                                         onRemove={clear("eob")}
@@ -140,11 +151,11 @@ const UploadSection = ({ onSubmit, isLoading }) => {
                                         className="btn-primary w-full flex items-center justify-center gap-2 mt-2"
                                 >
                                         <Sparkles className="w-4 h-4" />
-                                        {isLoading ? "Analyzing…" : "Run AI Audit"}
+                                        {isLoading ? t.checking : t.cta}
                                 </motion.button>
 
                                 <p className="text-center text-xs text-slate-600">
-                                        Documents are processed in-memory and never stored
+                                        {t.privacy}
                                 </p>
                         </div>
                 </motion.div>

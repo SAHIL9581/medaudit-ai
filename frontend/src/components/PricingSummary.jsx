@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, AlertCircle, CheckCircle } from "lucide-react";
+import { getT } from "../services/translations";
 
 const Bar = ({ pct, flagged }) => (
         <div className="flex items-center gap-2 w-full">
@@ -20,7 +21,8 @@ const Bar = ({ pct, flagged }) => (
         </div>
 );
 
-const PricingSummary = ({ pricingResults }) => {
+const PricingSummary = ({ pricingResults, language = "en" }) => {
+        const t = getT(language).pricing;
         const flagged = pricingResults.filter((p) => p.is_flagged);
         const totalOver = pricingResults.reduce((s, p) => s + p.estimated_overcharge, 0);
 
@@ -37,7 +39,7 @@ const PricingSummary = ({ pricingResults }) => {
                                 </div>
                                 <div className="flex-1">
                                         <p className="text-xs text-slate-500 font-medium uppercase tracking-wide">
-                                                Total Estimated Overcharge
+                                                {t.totalLabel}
                                         </p>
                                         <p className={`text-2xl font-extrabold mt-0.5
             ${totalOver > 0 ? "text-red-400" : "text-emerald-400"}`}>
@@ -46,21 +48,21 @@ const PricingSummary = ({ pricingResults }) => {
                                 </div>
                                 <div className="text-right">
                                         <p className="text-2xl font-extrabold text-white">{flagged.length}</p>
-                                        <p className="text-xs text-slate-500">of {pricingResults.length} flagged</p>
+                                        <p className="text-xs text-slate-500">{t.ofFlagged.replace("{total}", pricingResults.length)}</p>
                                 </div>
                         </div>
 
                         {/* Table */}
                         <div className="card overflow-hidden">
                                 <div className="px-5 py-4 border-b border-[#1e3a5f]/50">
-                                        <h3 className="text-sm font-bold text-white">CPT Code Pricing Breakdown</h3>
-                                        <p className="text-xs text-slate-500 mt-0.5">vs. CMS Medicare benchmark median</p>
+                                        <h3 className="text-sm font-bold text-white">{t.tableTitle}</h3>
+                                        <p className="text-xs text-slate-500 mt-0.5">{t.tableSubtitle}</p>
                                 </div>
                                 <div className="overflow-x-auto">
                                         <table className="w-full">
                                                 <thead>
                                                         <tr className="border-b border-[#1e3a5f]/30">
-                                                                {["CPT", "Description", "Billed", "Benchmark", "Deviation", "Overcharge"].map((h) => (
+                                                                {t.headers.map((h) => (
                                                                         <th key={h} className="text-left px-4 py-3 text-[11px] font-bold
                                          uppercase tracking-widest text-slate-600">{h}</th>
                                                                 ))}
@@ -96,12 +98,12 @@ const PricingSummary = ({ pricingResults }) => {
                                                                         <td className="px-4 py-3 w-44">
                                                                                 {r.benchmark_median > 0
                                                                                         ? <Bar pct={r.deviation_percent} flagged={r.is_flagged} />
-                                                                                        : <span className="text-xs text-slate-600">No data</span>}
+                                                                                        : <span className="text-xs text-slate-600">{t.noData}</span>}
                                                                         </td>
                                                                         <td className="px-4 py-3 text-sm tabular-nums">
                                                                                 {r.estimated_overcharge > 0
                                                                                         ? <span className="font-bold text-red-400">${r.estimated_overcharge.toFixed(2)}</span>
-                                                                                        : <span className="text-emerald-500 font-medium text-xs">Fair</span>}
+                                                                                        : <span className="text-emerald-500 font-medium text-xs">{t.fair}</span>}
                                                                         </td>
                                                                 </motion.tr>
                                                         ))}
